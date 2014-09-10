@@ -69,13 +69,13 @@ public class JSONAdapter extends BaseAdapter{
         final String thumbnailUrl = constructSourceUrl(jsonObject);
         Log.d("slickr","Getting thumbnail from " + thumbnailUrl);
         Picasso.with(mContext).load(thumbnailUrl).placeholder(R.drawable.placeholder).into(viewHolder.thumbnailImageView);
-        viewHolder.thumbnailImageView.setImageResource(R.drawable.placeholder);
+        //viewHolder.thumbnailImageView.setImageResource(R.drawable.placeholder);
         viewHolder.titleTextView.setText(jsonObject.optString("title"));
 
         return convertView;
     }
 
-    public void updateDate(JSONArray jsonArray){
+    public void updateData(JSONArray jsonArray){
         Log.d("slickr","Array has " + jsonArray.length() + " elements ");
         mJsonArray = jsonArray;
         notifyDataSetChanged();
@@ -113,7 +113,7 @@ public class JSONAdapter extends BaseAdapter{
         urlBuilder.append("_");
         urlBuilder.append(jsonObject.opt("secret"));
         urlBuilder.append("_");
-        urlBuilder.append("t");
+        urlBuilder.append("t.jpg");
 
         return urlBuilder.toString();
     }

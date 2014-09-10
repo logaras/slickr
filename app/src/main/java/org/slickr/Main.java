@@ -13,7 +13,6 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
-import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.BaseJsonHttpResponseHandler;
@@ -109,7 +108,7 @@ public class Main extends Activity {
                             try {
                                 JSONObject jsonObject = new JSONObject(rawJsonResponse);
                                 //Log.d("slickr",jsonObject.getJSONObject("photos").getJSONArray("photo").toString());
-                                mJSONAdapter.updateDate(jsonObject.getJSONObject("photos").getJSONArray("photo"));
+                                mJSONAdapter.updateData(jsonObject.getJSONObject("photos").getJSONArray("photo"));
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
