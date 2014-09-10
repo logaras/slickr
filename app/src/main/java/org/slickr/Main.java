@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -28,16 +29,26 @@ import java.net.URLEncoder;
 public class Main extends Activity {
 
     ProgressBar progressBarView;
+    JSONAdapter mJSONAdapter;
+    ListView resultsListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
-        setContentView(R.layout.activity_main);
-        progressBarView = (ProgressBar) findViewById(R.id.progressBar);
-        progressBarView.setVisibility(View.GONE);
 
+        setContentView(R.layout.activity_main);
+
+        progressBarView = (ProgressBar) findViewById(R.id.progressBar);
+        progressBarView.setVisibility(View.INVISIBLE);
+
+        resultsListView  = (ListView) findViewById(R.id.results_listview);
+        mJSONAdapter = new JSONAdapter(this, getLayoutInflater());
+        resultsListView.setAdapter(mJSONAdapter);
+
+        resultsListView = (ListView) findViewById(R.id.results_listview);
 
     }
 
@@ -86,16 +97,20 @@ public class Main extends Activity {
 
 
             AsyncHttpClient client = new AsyncHttpClient();
+            progressBarView.setVisibility(View.VISIBLE);
             client.get(Statics.FLICK_SEARCH_URL + urlString,
                     new BaseJsonHttpResponseHandler() {
 
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, String rawJsonResponse, Object response) {
-                            progressBarView.setVisibility(View.GONE);
+                            progressBarView.setVisibility(View.INVISIBLE);
 
-                            Log.d(getString(R.string.app_name), rawJsonResponse);
+                            //Log.d(getString(R.string.app_name), rawJsonResponse);
                             try {
-                               JSONObject jsonObject = new JSONObject(rawJsonResponse);
+                                JSONObject jsonObject = new JSONObject(rawJsonResponse);
+                                //Log.d("slickr",jsonObject.getJSONObject("photos").getJSONArray("photo").toString());
+                                mJSONAdapter.updateDate(jsonObject.getJSONObject("photos").getJSONArray("photo"));
+
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -103,7 +118,7 @@ public class Main extends Activity {
 
                         @Override
                         public void onFailure(int statusCode, Header[] headers, Throwable throwable, String rawJsonData, Object errorResponse) {
-                            progressBarView.setVisibility(View.GONE);
+                            progressBarView.setVisibility(View.INVISIBLE);
 
                             Log.e(getString(R.string.app_name), statusCode + "\n" + errorResponse);
                         }
