@@ -53,7 +53,7 @@ public class JSONAdapter extends BaseAdapter{
             convertView = mInflater.inflate(R.layout.row_result,null);
 
             viewHolder = new ViewHolder();
-            viewHolder.thumbnailImageView = (ImageView) convertView.findViewById(R.id.img_thumbnail);
+            viewHolder.thumbnailImageView = (ImageView) convertView.findViewById(R.id.thumbnail_title);
             viewHolder.titleTextView = (TextView) convertView.findViewById(R.id.img_title);
             viewHolder.infoTextView = (TextView) convertView.findViewById(R.id.img_info);
 

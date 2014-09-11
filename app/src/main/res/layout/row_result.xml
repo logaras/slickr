@@ -5,7 +5,7 @@
     android:layout_height="75dp">
 
     <ImageView
-        android:id="@+id/img_thumbnail"
+        android:id="@+id/thumbnail_title"
         android:layout_width="150px"
         android:layout_height="150px"
         android:layout_margin="5dp"
@@ -17,7 +17,7 @@
         android:id="@+id/img_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/img_thumbnail"
+        android:layout_toRightOf="@+id/thumbnail_title"
         android:layout_marginLeft="7dp"
         android:layout_marginRight="7dp"
         android:layout_centerVertical="true"

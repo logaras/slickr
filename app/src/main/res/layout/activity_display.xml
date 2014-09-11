@@ -4,10 +4,29 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:id="@+id/image_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        />
+    <TextView
+        android:id="@+id/image_tags"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        />
+    <TextView
+        android:id="@+id/image_geolocation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        />
+
     <ImageView
+        android:id="@+id/full_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/full_image"
         android:layout_margin="20dp"
         android:src="@drawable/placeholder"
         />

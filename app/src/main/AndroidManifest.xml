@@ -7,7 +7,7 @@
     <application
         android:allowBackup="true"
         android:icon="@drawable/slickr_square"
-        android:label=""
+        android:label="slickr"
         android:theme="@android:style/Theme.Holo.Light" >
         <activity
             android:name=".MainActivity"

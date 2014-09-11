@@ -95,12 +95,12 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
-            Log.d(getString(R.string.app_name), Statics.FLICK_SEARCH_URL + urlString);
+            Log.d(getString(R.string.app_name), FlickrUtils.FLICK_SEARCH_URL + urlString);
 
 
             AsyncHttpClient client = new AsyncHttpClient();
             progressBarView.setVisibility(View.VISIBLE);
-            client.get(Statics.FLICK_SEARCH_URL + urlString,
+            client.get(FlickrUtils.FLICK_SEARCH_URL + urlString,
                     new BaseJsonHttpResponseHandler() {
 
                         @Override
@@ -141,7 +141,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         JSONObject item = (JSONObject) mJSONAdapter.getItem(position);
 
         Intent displayIntent = new Intent(this, DisplayActivity.class);
-        displayIntent.putExtra(Statics.FULL_IMG_URL,FlickrUtils.getInstance().constructSourceUrl(item,FlickrUtils.SIZE_LARGE));
+        displayIntent.putExtra(FlickrUtils.JSON_STRING,item.toString());
+        displayIntent.putExtra(FlickrUtils.FULL_IMG_URL,FlickrUtils.getInstance().constructSourceUrl(item,FlickrUtils.SIZE_LARGE));
 
         startActivity(displayIntent);
     }
