@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
@@ -25,7 +26,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 
-public class Main extends Activity {
+public class MainActivity extends Activity implements AdapterView.OnItemClickListener {
 
     ProgressBar progressBarView;
     JSONAdapter mJSONAdapter;
@@ -49,6 +50,7 @@ public class Main extends Activity {
 
         resultsListView = (ListView) findViewById(R.id.results_listview);
 
+        resultsListView.setOnItemClickListener(this);
     }
 
     @Override
@@ -131,5 +133,16 @@ public class Main extends Activity {
                     });
 
         }
+    }
+
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        JSONObject item = (JSONObject) mJSONAdapter.getItem(position);
+
+        Intent displayIntent = new Intent(this, DisplayActivity.class);
+        displayIntent.putExtra(Statics.FULL_IMG_URL,FlickrUtils.getInstance().constructSourceUrl(item,FlickrUtils.SIZE_LARGE));
+
+        startActivity(displayIntent);
     }
 }
