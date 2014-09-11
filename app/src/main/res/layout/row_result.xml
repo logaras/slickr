@@ -6,9 +6,9 @@
 
     <ImageView
         android:id="@+id/img_thumbnail"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginLeft="25dp"
+        android:layout_width="150px"
+        android:layout_height="150px"
+        android:layout_margin="5dp"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:scaleType="centerInside"/>
@@ -18,7 +18,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/img_thumbnail"
-        android:layout_alignTop="@+id/img_thumbnail"/>
+        android:layout_marginLeft="15dp"
+        android:layout_centerVertical="true"
+        android:textAppearance="?android:attr/textAppearanceMedium"/>
 
     <TextView
         android:id="@+id/img_info"

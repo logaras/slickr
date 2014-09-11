@@ -113,7 +113,7 @@ public class JSONAdapter extends BaseAdapter{
         urlBuilder.append("_");
         urlBuilder.append(jsonObject.opt("secret"));
         urlBuilder.append("_");
-        urlBuilder.append("t.jpg");
+        urlBuilder.append("q.jpg");
 
         return urlBuilder.toString();
     }

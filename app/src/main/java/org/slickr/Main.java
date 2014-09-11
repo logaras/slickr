@@ -83,6 +83,7 @@ public class Main extends Activity {
      * @param intent
      */
     private void handleIntent(Intent intent) {
+
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             Log.d(getString(R.string.app_name), "Searching for " + query);
