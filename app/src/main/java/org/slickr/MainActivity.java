@@ -84,6 +84,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     int mTotalPages;
 
     View navbarView;
+    SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,9 +132,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         getMenuInflater().inflate(R.menu.options_menu, menu);
 
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
+        searchView = (SearchView) menu.findItem(R.id.search).getActionView();
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-
         return true;
     }
 
@@ -206,9 +206,12 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         // This is an intent for us indeed.
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
 
+
             // Get the query
             String query = intent.getStringExtra(SearchManager.QUERY);
+            //searchView.setQuery(query,true);
             mCurrentPage = 1;
+
             doSearch(query);
 
         }

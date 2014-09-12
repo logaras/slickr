@@ -98,7 +98,7 @@ public class DisplayActivity extends Activity {
                                 JSONObject jsonObject = new JSONObject(rawJsonResponse);
 
                                 // Set the share url on the Share Intent
-                                setShareIntent(imageTitle, FlickrUtils.getInstance().extractShareUrl(jsonObject));
+                                setShareIntent(FlickrUtils.getInstance().extractShareUrl(jsonObject));
 
                                 // Display the Location of the photo
                                 locationTextView.setText(FlickrUtils.getInstance().extractLocation(jsonObject));
@@ -143,7 +143,7 @@ public class DisplayActivity extends Activity {
             mShareActionProvider = (ShareActionProvider) shareItem.getActionProvider();
         }
 
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -167,7 +167,7 @@ public class DisplayActivity extends Activity {
      * @param title    The photo title as String
      * @param shareUrl The full URL as String
      */
-    private void setShareIntent(final String title, final String shareUrl) {
+    private void setShareIntentHtml(final String title, final String shareUrl) {
 
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/html");
@@ -186,5 +186,19 @@ public class DisplayActivity extends Activity {
         mShareActionProvider.setShareIntent(shareIntent);
     }
 
+    /**
+     * Prepares the Share Intent for the specific photo.
+     *
+     * @param shareUrl The full URL as String
+     */
+    private void setShareIntent(final String shareUrl) {
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+
+        shareIntent.putExtra(Intent.EXTRA_TEXT, shareUrl);
+
+        mShareActionProvider.setShareIntent(shareIntent);
+    }
 
 }
