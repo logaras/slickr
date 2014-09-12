@@ -79,6 +79,11 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
      */
     String mLastFullQueryURL;
 
+    /**
+     * The current displayed result page.
+     */
+    int mTotalPages;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -230,10 +235,10 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                         // Try parsing the response.
                         try {
                             JSONObject jsonObject = new JSONObject(rawJsonResponse);
-                            final int pageCount = jsonObject.getJSONObject("photos").getInt("pages");
+                            mTotalPages = jsonObject.getJSONObject("photos").getInt("pages");
                             mCurrentPage = jsonObject.getJSONObject("photos").getInt("page");
 
-                            pagesTextView.setText(mCurrentPage + " of " + pageCount + " pages");
+                            pagesTextView.setText(mCurrentPage + " of " + mTotalPages + " pages");
 
                             // Update the adapter to display the results.
                             mJSONAdapter.updateData(jsonObject.getJSONObject("photos").getJSONArray("photo"));
@@ -304,14 +309,18 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     }
 
     public void onPreviousPage(View v) {
-        mCurrentPage--;
-        doSearch(null);
+        if (mCurrentPage > 1) {
+            mCurrentPage--;
+            doSearch(null);
+        }
 
     }
 
     public void onNextPage(View v) {
-        mCurrentPage++;
-        doSearch(null);
+        if (mCurrentPage < mTotalPages) {
+            mCurrentPage++;
+            doSearch(null);
+        }
     }
 
     /**
