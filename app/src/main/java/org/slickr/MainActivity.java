@@ -17,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpClient;
@@ -25,6 +26,7 @@ import com.loopj.android.http.BaseJsonHttpResponseHandler;
 import org.apache.http.Header;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -62,6 +64,21 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
      */
     LocationManager mLocationManager;
 
+    /**
+     * TextView for current page and overall results pagecount.
+     */
+    TextView pagesTextView;
+
+    /**
+     * The current displayed result page.
+     */
+    int mCurrentPage;
+
+    /**
+     * The the last performed query URL.
+     */
+    String mLastFullQueryURL;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,12 +100,16 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         resultsListView = (ListView) findViewById(R.id.results_listview);
         resultsListView.setOnItemClickListener(this);
 
+        pagesTextView = (TextView) findViewById(R.id.pagesTextView);
+        mCurrentPage = 1;
+
         mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         mLocation = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
+        // Start the search Intent for the first page of results
         handleIntent(intent);
     }
 
@@ -145,12 +166,12 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                 mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
                 item.setIcon(R.drawable.ic_action_location_searching);
 
-            // Cannot get fresh location.
+                // Cannot get fresh location.
             } else {
                 Toast.makeText(this, "Enable GPS or Network Location for better results.", Toast.LENGTH_LONG).show();
             }
 
-        // Is now disabled
+            // Is now disabled
         } else {
 
             // Unsubscribe from location updates.
@@ -167,79 +188,101 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
      */
     private void handleIntent(Intent intent) {
 
+
         // This is an intent for us indeed.
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
 
             // Get the query
             String query = intent.getStringExtra(SearchManager.QUERY);
-            Log.d(getString(R.string.app_name), "Searching for " + query);
-
-            // Encode the query to UTF-8
-            String urlTextQuery = "";
-            try {
-                urlTextQuery = URLEncoder.encode(query, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-
-            // Start building the complete URL
-            StringBuilder urlBuilder = new StringBuilder();
-            urlBuilder.append(FlickrUtils.FLICK_SEARCH_URL);
-            urlBuilder.append(urlTextQuery);
-
-            // Include location if enabled.
-            if (isGeoEnabled) {
-
-                urlBuilder.append("&lat=");
-                urlBuilder.append(mLocation.getLatitude());
-                urlBuilder.append("&lon=");
-                urlBuilder.append(mLocation.getLongitude());
-            }
-            urlBuilder.toString();
-
-            Log.d(getString(R.string.app_name), urlBuilder.toString());
-
-
-            // Use the AsyncHttpClient to contact the Flickr api.
-            AsyncHttpClient client = new AsyncHttpClient();
-
-            progressBarView.setVisibility(View.VISIBLE);
-
-            client.get(urlBuilder.toString(),
-                    new BaseJsonHttpResponseHandler() {
-
-                        @Override
-                        public void onSuccess(int statusCode, Header[] headers, String rawJsonResponse, Object response) {
-                            // The results are in.
-                            progressBarView.setVisibility(View.INVISIBLE);
-
-                            // Try parsing the response.
-                            try {
-                                JSONObject jsonObject = new JSONObject(rawJsonResponse);
-                                // Update the adapter to display the results.
-                                mJSONAdapter.updateData(jsonObject.getJSONObject("photos").getJSONArray("photo"));
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(int statusCode, Header[] headers, Throwable throwable, String rawJsonData, Object errorResponse) {
-                            progressBarView.setVisibility(View.INVISIBLE);
-                            Toast.makeText(getApplicationContext(), "An error occured while connecting the server.",Toast.LENGTH_LONG).show();
-                            Log.e(getString(R.string.app_name), statusCode + "\n" + errorResponse);
-                        }
-
-                        @Override
-                        protected Object parseResponse(String rawJsonData, boolean isFailure) throws Throwable {
-                            return null;
-                        }
-
-                    });
+            mCurrentPage = 1;
+            doSearch(query);
 
         }
     }
 
+    /**
+     * Performs the actual REST Call.
+     *
+     * @param query
+     */
+    private void doSearch(String query) {
+        Log.d(getString(R.string.app_name), "Searching for " + query);
+
+        if (query != null) {
+            mLastFullQueryURL = reconstructFullQUeryUrl(query);
+        }
+
+        mLastFullQueryURL += "&page=" + mCurrentPage;
+
+        // Use the AsyncHttpClient to contact the Flickr api.
+        AsyncHttpClient client = new AsyncHttpClient();
+
+        progressBarView.setVisibility(View.VISIBLE);
+
+        client.get(mLastFullQueryURL.toString(),
+                new BaseJsonHttpResponseHandler() {
+
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, String rawJsonResponse, Object response) {
+                        // The results are in.
+                        progressBarView.setVisibility(View.INVISIBLE);
+
+                        // Try parsing the response.
+                        try {
+                            JSONObject jsonObject = new JSONObject(rawJsonResponse);
+                            final int pageCount = jsonObject.getJSONObject("photos").getInt("pages");
+                            mCurrentPage = jsonObject.getJSONObject("photos").getInt("page");
+
+                            pagesTextView.setText(mCurrentPage + " of " + pageCount + " pages");
+
+                            // Update the adapter to display the results.
+                            mJSONAdapter.updateData(jsonObject.getJSONObject("photos").getJSONArray("photo"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, String rawJsonData, Object errorResponse) {
+                        progressBarView.setVisibility(View.INVISIBLE);
+                        Toast.makeText(getApplicationContext(), "An error occured while connecting the server.", Toast.LENGTH_LONG).show();
+                        Log.e(getString(R.string.app_name), statusCode + "\n" + errorResponse);
+                    }
+
+                    @Override
+                    protected Object parseResponse(String rawJsonData, boolean isFailure) throws Throwable {
+                        return null;
+                    }
+
+                });
+    }
+
+    private String reconstructFullQUeryUrl(String query) {
+        // Encode the query to UTF-8
+        String urlTextQuery = "";
+        try {
+            urlTextQuery = URLEncoder.encode(query, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        // Start building the complete URL
+        StringBuilder urlBuilder = new StringBuilder();
+        urlBuilder.append(FlickrUtils.FLICK_SEARCH_URL);
+        urlBuilder.append(urlTextQuery);
+
+        // Include location if enabled.
+        if (isGeoEnabled) {
+
+            urlBuilder.append("&lat=");
+            urlBuilder.append(mLocation.getLatitude());
+            urlBuilder.append("&lon=");
+            urlBuilder.append(mLocation.getLongitude());
+        }
+        Log.d(getString(R.string.app_name), urlBuilder.toString());
+        return urlBuilder.toString();
+
+    }
 
 
     /**
@@ -260,6 +303,16 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         startActivity(displayIntent);
     }
 
+    public void onPreviousPage(View v) {
+        mCurrentPage--;
+        doSearch(null);
+
+    }
+
+    public void onNextPage(View v) {
+        mCurrentPage++;
+        doSearch(null);
+    }
 
     /**
      * Get any updates on current location.

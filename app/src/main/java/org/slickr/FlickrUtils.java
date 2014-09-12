@@ -31,11 +31,12 @@ public class FlickrUtils {
      */
     public static final String FLICKR_INFO_URL = FLICK_BASE_URL + "flickr.photos.getInfo&api_key=" + FLICKR_KEY + "&photo_id=";
 
+    public static final int RESULTS_PER_PAGE = 10;
 
     /**
      * REST call for searching a text query.
      */
-    public static final String FLICK_SEARCH_URL = FLICK_BASE_URL + "flickr.photos.search&per_page=10&api_key=" + FLICKR_KEY + "&text=";
+    public static final String FLICK_SEARCH_URL = FLICK_BASE_URL + "flickr.photos.search&per_page="+RESULTS_PER_PAGE+"&api_key=" + FLICKR_KEY + "&text=";
 
     /**
      * Key for the full image url.
