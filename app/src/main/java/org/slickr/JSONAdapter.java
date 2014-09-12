@@ -63,6 +63,7 @@ public class JSONAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+
         ViewHolder viewHolder;
 
         // This is the first time the item is displayed.
@@ -89,7 +90,7 @@ public class JSONAdapter extends BaseAdapter {
         // Fill in the row with corresponding data.
         JSONObject jsonObject = (JSONObject) getItem(position);
 
-        // Construct the thumnbnail URL
+        // Construct the thumbnail URL
         final String thumbnailUrl = FlickrUtils.getInstance().constructSourceUrl(jsonObject, FlickrUtils.SIZE_LARGE_SQUARE);
         Log.d("slickr", "Getting thumbnail from " + thumbnailUrl);
 

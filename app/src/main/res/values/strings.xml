@@ -7,5 +7,6 @@
     <string name="search_title">Search Flickr</string>
     <string name="search_hint">Title, Person or tag</string>
     <string name="action_location">Enable Location</string>
+    <string name="empty_list">Search for a photo.</string>
 
 </resources>

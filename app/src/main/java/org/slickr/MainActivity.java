@@ -26,7 +26,6 @@ import com.loopj.android.http.BaseJsonHttpResponseHandler;
 import org.apache.http.Header;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -84,6 +83,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
      */
     int mTotalPages;
 
+    View navbarView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,15 +95,18 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
         setContentView(R.layout.activity_main);
 
+        navbarView = (View) findViewById(R.id.navbar);
+        navbarView.setVisibility(View.GONE);
+
         // Initializing Views and display elements
         progressBarView = (ProgressBar) findViewById(R.id.progressBar);
         progressBarView.setVisibility(View.INVISIBLE);
 
-        resultsListView = (ListView) findViewById(R.id.results_listview);
+        resultsListView = (ListView) findViewById(R.id.list);
         mJSONAdapter = new JSONAdapter(this, getLayoutInflater());
 
         resultsListView.setAdapter(mJSONAdapter);
-        resultsListView = (ListView) findViewById(R.id.results_listview);
+        resultsListView = (ListView) findViewById(R.id.list);
         resultsListView.setOnItemClickListener(this);
 
         pagesTextView = (TextView) findViewById(R.id.pagesTextView);
@@ -110,6 +114,9 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
         mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         mLocation = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+        View empty = findViewById(R.id.empty_view);
+        resultsListView.setEmptyView(empty);
     }
 
     @Override
@@ -240,9 +247,11 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
                             pagesTextView.setText(mCurrentPage + " of " + mTotalPages + " pages");
 
+                            navbarView.setVisibility(View.VISIBLE);
                             // Update the adapter to display the results.
                             mJSONAdapter.updateData(jsonObject.getJSONObject("photos").getJSONArray("photo"));
                         } catch (JSONException e) {
+                            navbarView.setVisibility(View.GONE);
                             e.printStackTrace();
                         }
                     }

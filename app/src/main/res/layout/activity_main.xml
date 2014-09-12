@@ -2,15 +2,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
+
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:indeterminate="true"
-        android:visibility="gone"/>
+        android:visibility="gone" />
+
     <RelativeLayout
-        android:id= "@+id/navbar"
+        android:id="@+id/navbar"
         android:layout_width="match_parent"
         android:layout_height="40dp">
 
@@ -18,30 +20,54 @@
             android:layout_width="40dp"
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
-            android:src="@drawable/ic_action_previous_item"
             android:clickable="true"
-            android:onClick="onPreviousPage"/>
+            android:onClick="onPreviousPage"
+            android:src="@drawable/ic_action_previous_item" />
+
         <TextView
+            android:id="@+id/pagesTextView"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:id="@+id/pagesTextView"/>
+            android:layout_centerVertical="true" />
 
         <ImageView
             android:layout_width="40dp"
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"
-            android:src="@drawable/ic_action_next_item"
             android:clickable="true"
-            android:onClick="onNextPage"/>
-        </RelativeLayout>
+            android:onClick="onNextPage"
+            android:src="@drawable/ic_action_next_item" />
+    </RelativeLayout>
 
     <ListView
-        android:id="@+id/results_listview"
+        android:id="@+id/list"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
+
+    <LinearLayout
+        android:id="@+id/empty_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:src="@drawable/slickr"
+            android:alpha="0.5" />
+
+        <TextView
+            android:id="@+id/empty_list_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/empty_list" />
+
+    </LinearLayout>
+
 
 
 
