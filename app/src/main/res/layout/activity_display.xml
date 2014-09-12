@@ -23,14 +23,15 @@
             android:layout_width="wrap_content"
             android:layout_height="20dp"
             android:layout_marginLeft="20dp"
-            android:src="@drawable/ic_action_map" />
+            android:src="@drawable/ic_action_place" />
 
         <TextView
             android:id="@+id/image_geolocation"
             android:layout_width="match_parent"
             android:layout_height="15dp"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="5dp" />
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="20dp"/>
     </LinearLayout>
 
     <LinearLayout
@@ -48,7 +49,8 @@
             android:id="@+id/image_tags"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp" />
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="20dp"/>
     </LinearLayout>
 
 
