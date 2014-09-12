@@ -9,6 +9,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.SearchRecentSuggestions;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -141,7 +142,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
-        Log.d("slickr",id+"");
+        Log.d("slickr", id + "");
         switch (id) {
             // Search widget selected
             case R.id.action_settings:
@@ -209,9 +210,15 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
             // Get the query
             String query = intent.getStringExtra(SearchManager.QUERY);
-            //searchView.setQuery(query,true);
-            mCurrentPage = 1;
+            if (query == null) {
+                return;
+            }
 
+            mCurrentPage = 1;
+            SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this, QueriesHistoryProvider.AUTHORITY, QueriesHistoryProvider.MODE);
+            suggestions.saveRecentQuery(query, null);
+            searchView.setQuery(query,false);
+            searchView.clearFocus();
             doSearch(query);
 
         }

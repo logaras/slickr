@@ -9,7 +9,10 @@
         android:allowBackup="true"
         android:icon="@drawable/slickr_square"
         android:label="slickr"
-        android:theme="@android:style/Theme.Holo.Light" >
+        android:theme="@android:style/Theme.Holo.Light">
+        <provider
+            android:authorities="org.slickr.QueriesHistoryProvider"
+            android:name="org.slickr.QueriesHistoryProvider"/>
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
