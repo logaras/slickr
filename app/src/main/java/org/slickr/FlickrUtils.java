@@ -167,7 +167,7 @@ o	original image, either a jpg, gif or png, depending on source format
         final JSONObject urlJsonObject = (JSONObject) jsonObject.optJSONObject("photo").optJSONObject("urls").optJSONArray("url").get(0);
         String returnString = urlJsonObject.opt("_content").toString();
 
-        Log.d("slickr", "Share url is" + returnString);
+        Log.d("slickr", "Share url is " + returnString);
         return returnString;
     }
 

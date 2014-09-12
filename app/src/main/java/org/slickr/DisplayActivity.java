@@ -50,7 +50,6 @@ public class DisplayActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
-
         // Hide title from actionbar.
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
@@ -150,7 +149,6 @@ public class DisplayActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
-        Log.d("slickr", id + "");
         switch (id) {
             case android.R.id.home:
                 onBackPressed();
