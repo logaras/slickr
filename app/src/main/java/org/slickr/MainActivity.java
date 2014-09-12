@@ -117,6 +117,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
         View empty = findViewById(R.id.empty_view);
         resultsListView.setEmptyView(empty);
+        getActionBar().setDisplayHomeAsUpEnabled(false);
     }
 
     @Override
@@ -140,6 +141,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
+        Log.d("slickr",id+"");
         switch (id) {
             // Search widget selected
             case R.id.action_settings:

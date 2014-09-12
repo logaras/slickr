@@ -146,10 +146,25 @@ public class DisplayActivity extends Activity {
         return true;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+        Log.d("slickr", id + "");
+        switch (id) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     /**
      * Prepares the Share Intent for the specific photo.
      *
-     * @param title The photo title as String
+     * @param title    The photo title as String
      * @param shareUrl The full URL as String
      */
     private void setShareIntent(final String title, final String shareUrl) {
