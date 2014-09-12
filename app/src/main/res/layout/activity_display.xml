@@ -57,9 +57,10 @@
     </LinearLayout>
 
     <ImageView
+        android:background="#000000"
         android:id="@+id/full_image"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_margin="20dp"
         android:gravity="center"
         android:src="@drawable/placeholder" />
