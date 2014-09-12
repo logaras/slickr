@@ -1,8 +1,10 @@
 package org.slickr;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,7 +26,6 @@ import org.json.JSONObject;
  * Created by marlog on 9/11/14.
  */
 public class DisplayActivity extends Activity {
-    String shareUrl = "";
     TextView titleTextView;
     TextView tagsTextView;
     TextView locationTextView;
@@ -33,7 +34,8 @@ public class DisplayActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
-
+        ActionBar actionBar = getActionBar();
+        actionBar.setDisplayShowTitleEnabled(false);
         setContentView(R.layout.activity_display);
 
         ImageView imageView = (ImageView) findViewById(R.id.full_image);
@@ -44,14 +46,15 @@ public class DisplayActivity extends Activity {
 
         titleTextView = (TextView) findViewById(R.id.image_title);
         tagsTextView = (TextView) findViewById(R.id.image_tags);
-        tagsTextView = (TextView) findViewById(R.id.image_geolocation);
+        locationTextView = (TextView) findViewById(R.id.image_geolocation);
 
-        //getActionBar().setDisplayHomeAsUpEnabled(true);
+       /* getActionBar().setDisplayHomeAsUpEnabled(true);*/
 
         final String jsonString = this.getIntent().getExtras().get(FlickrUtils.JSON_STRING).toString();
         try {
             final JSONObject jsonObject = new JSONObject(jsonString);
-            titleTextView.setText(jsonObject.optString("title"));
+            final String imageTitle = jsonObject.optString("title");
+            titleTextView.setText(imageTitle);
             // Get info
             final String infoUrl = FlickrUtils.getInstance().constructInfoUrl(jsonObject);
 
@@ -68,22 +71,13 @@ public class DisplayActivity extends Activity {
                                 //Log.d("slickr",jsonObject.getJSONObject("photos").getJSONArray("photo").toString());
 
                                 // Photo page
-                                String shareUrl= jsonObject.optJSONObject("photo").optJSONObject("urls").optJSONArray("url").toString();
-                                // Location
+                                setShareIntent(imageTitle, FlickrUtils.getInstance().extractShareUrl(jsonObject));
 
+                                // Location
+                                locationTextView.setText(FlickrUtils.getInstance().extractLocation(jsonObject));
 
                                 // Manipulate tags
-                                JSONArray tagsJSONArray = jsonObject.optJSONObject("photo").optJSONObject("tags").optJSONArray("tag");
-                                final StringBuilder tagsBuilder = new StringBuilder();
-
-                                if (tagsJSONArray.length() > 0) {
-                                    for (int i = 0; i < tagsJSONArray.length(); i++) {
-                                        final JSONObject tagJsonObject = (JSONObject) tagsJSONArray.get(i);
-                                        tagsBuilder.append(tagJsonObject.opt("raw"));
-                                        tagsBuilder.append(" ");
-                                    }
-                                    tagsTextView.setText(tagsBuilder.toString());
-                                }
+                                tagsTextView.setText(FlickrUtils.getInstance().extractTags(jsonObject));
 
 
                             } catch (JSONException e) {
@@ -105,8 +99,6 @@ public class DisplayActivity extends Activity {
 
                     });
 
-//            tagsTextView.setText(jsonObject.optString("tags"));
-//            locationTextView.setText(jsonObject.optString("geolocation"));
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -124,16 +116,25 @@ public class DisplayActivity extends Activity {
         if (shareItem != null) {
             mShareActionProvider = (ShareActionProvider) shareItem.getActionProvider();
         }
-        setShareIntent();
+
         return true;
     }
 
-    private void setShareIntent() {
+    private void setShareIntent(final String title, final String shareUrl) {
 
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setType("text/plain");
+        shareIntent.setType("text/html");
         shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Take a look!");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, shareUrl);
+        final StringBuilder shareTextBuilder =  new StringBuilder();
+        shareTextBuilder.append("<p>");
+        shareTextBuilder.append("This is a nice picture I found:");
+        shareTextBuilder.append("</p><p>");
+        shareTextBuilder.append("<a href=\">");
+        shareTextBuilder.append(shareUrl);
+        shareTextBuilder.append("\">");
+        shareTextBuilder.append(title);
+        shareTextBuilder.append("</a></p>");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, Html.fromHtml(shareTextBuilder.toString()));
 
         mShareActionProvider.setShareIntent(shareIntent);
     }
