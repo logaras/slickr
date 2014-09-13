@@ -106,6 +106,7 @@ public class PhotoAdapter extends BaseAdapter {
     public void updateData(ArrayList<Photo> resultsArray){
         mResultsArray = resultsArray;
         notifyDataSetChanged();
+
     }
 
     /**

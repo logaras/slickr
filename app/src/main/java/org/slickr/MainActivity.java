@@ -236,7 +236,6 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
             mLastFullQueryURL = FlickrUtils.getInstance().reconstructFullQUeryUrl(query, mLocation, mIsGeoEnabled);
         }
 
-        //
         mLastFullQueryURL += "&page=" + mCurrentPage;
 
         // Use the AsyncHttpClient to contact the Flickr api.
@@ -261,7 +260,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
                             // Update the adapter to display the results.
                             mPhotodapter.updateData(results.getResultsArray());
-
+                            resultsListView.setSelection(0);
                         } catch (JSONException e) {
                             navbarView.setVisibility(View.GONE);
                             //TODO check progressbar
