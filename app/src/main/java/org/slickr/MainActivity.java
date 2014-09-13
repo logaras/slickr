@@ -284,7 +284,6 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
                         } catch (JSONException e) {
                             navbarView.setVisibility(View.GONE);
-                            //TODO check progressbar
                             e.printStackTrace();
                         }
                     }

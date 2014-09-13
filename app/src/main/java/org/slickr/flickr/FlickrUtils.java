@@ -268,7 +268,7 @@ public class FlickrUtils {
         photo.setTitle(jsonObject.optJSONObject("photo").optJSONObject("title").optString("_content"));
         photo.setTags(extractTags(jsonObject));
         photo.setGeoLocation(extractLocation(jsonObject));
-        photo.setFullImageUrl(constructImageUrl(jsonObject, SIZE_LARGE));
+        photo.setFullImageUrl(constructImageUrl(jsonObject, SIZE_MEDIUM));
         photo.setShareUrl(extractShareUrl(jsonObject));
         return photo;
     }
