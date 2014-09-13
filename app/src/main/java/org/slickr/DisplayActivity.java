@@ -18,8 +18,8 @@ import com.squareup.picasso.Picasso;
 
 import org.apache.http.Header;
 import org.json.JSONException;
-import org.slickr.flickr.Utils;
-import org.slickr.flickr.Photo;
+import org.slickr.flickr.FlickrPhoto;
+import org.slickr.flickr.FlickrUtils;
 
 
 /**
@@ -58,7 +58,7 @@ public class DisplayActivity extends Activity {
         ImageView imageView = (ImageView) findViewById(R.id.full_image);
 
         // Get the photo URL from extras.
-        String fullImageUrl = this.getIntent().getExtras().get(Utils.FULL_IMG_URL).toString();
+        String fullImageUrl = this.getIntent().getExtras().get(FlickrUtils.FULL_IMG_URL).toString();
 
         // Asynchronously start loading the photo.
         Picasso.with(this).load(fullImageUrl).placeholder(R.drawable.placeholder).into(imageView);
@@ -73,7 +73,7 @@ public class DisplayActivity extends Activity {
 
 
         // Retrieve info url from extras.
-        final String infoUrl = this.getIntent().getExtras().get(Utils.FLICKR_INFO_URL).toString();
+        final String infoUrl = this.getIntent().getExtras().get(FlickrUtils.FLICKR_INFO_URL).toString();
 
         // Asynchronously get the Info Json
         AsyncHttpClient client = new AsyncHttpClient();
@@ -84,9 +84,9 @@ public class DisplayActivity extends Activity {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, String rawJsonResponse, Object response) {
 
-                        Photo photo = null;
+                        FlickrPhoto photo = null;
                         try {
-                            photo = Utils.getInstance().convertPhotoFromInfo(rawJsonResponse);
+                            photo = FlickrUtils.getInstance().convertPhotoFromInfo(rawJsonResponse);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

@@ -26,9 +26,9 @@ import com.loopj.android.http.BaseJsonHttpResponseHandler;
 
 import org.apache.http.Header;
 import org.json.JSONException;
-import org.slickr.flickr.Utils;
-import org.slickr.flickr.Photo;
-import org.slickr.flickr.SearchResults;
+import org.slickr.flickr.FlickrPhoto;
+import org.slickr.flickr.FlickrSearchResults;
+import org.slickr.flickr.FlickrUtils;
 
 
 public class MainActivity extends Activity implements AdapterView.OnItemClickListener, LocationListener {
@@ -83,8 +83,21 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
      */
     int mTotalPages;
 
+    /**
+     * The bar for navigating result pages.
+     */
     View navbarView;
+
+
+    /**
+     * The serchview for query entries.
+     */
     SearchView searchView;
+
+    /**
+     * Instance of the FlickUtils.
+     */
+    FlickrUtils flickrUtils;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,14 +124,18 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         resultsListView.setOnItemClickListener(this);
 
         pagesTextView = (TextView) findViewById(R.id.pagesTextView);
+
+        // Make the first page ever appeared, the first result page.
         mCurrentPage = 1;
 
         mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         mLocation = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
+        // Setting up the view when no results are in.
         View empty = findViewById(R.id.empty_view);
         resultsListView.setEmptyView(empty);
-        getActionBar().setDisplayHomeAsUpEnabled(false);
+
+        flickrUtils = FlickrUtils.getInstance();
     }
 
     @Override
@@ -162,12 +179,11 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
      * @param item the MenuItem corresponding to the location settings.
      */
     private void toggleLocation(MenuItem item) {
-        Log.d(getString(R.string.app_name), "Should toggle locations");
 
         // Revert previous state
         mIsGeoEnabled = !mIsGeoEnabled;
 
-        // Is now enabled
+        // Geolocation is now enabled
         if (mIsGeoEnabled) {
 
             // Use best enabled location provider
@@ -184,7 +200,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                 Toast.makeText(this, "Enable GPS or Network Location for better results.", Toast.LENGTH_LONG).show();
             }
 
-            // Is now disabled
+            // Geolocation is now disabled
         } else {
 
             // Unsubscribe from location updates.
@@ -193,12 +209,12 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         }
     }
 
-
     /**
      * Handles the actual search request.
      *
      * @param intent the Intent that initialized the process.
      */
+
     private void handleIntent(Intent intent) {
 
 
@@ -230,11 +246,14 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     private void doSearch(String query) {
 
 
+        // The query is not set, doing search for the previous entries.
         if (query != null) {
-            mLastFullQueryURL = Utils.getInstance().reconstructFullQueryUrl(query, mLocation, mIsGeoEnabled);
+            // Keep exactly the same input, text and location
+            mLastFullQueryURL = flickrUtils.reconstructFullQueryUrl(query, mLocation, mIsGeoEnabled);
         }
 
-        mLastFullQueryURL = Utils.getInstance().appendPageToQueryUrl(mLastFullQueryURL,mCurrentPage);
+        // Request a specific page of the results.
+        mLastFullQueryURL = flickrUtils.appendPageToQueryUrl(mLastFullQueryURL, mCurrentPage);
 
         // Use the AsyncHttpClient to contact the Flickr api.
         AsyncHttpClient client = new AsyncHttpClient();
@@ -251,14 +270,18 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                             progressBarView.setVisibility(View.INVISIBLE);
                             navbarView.setVisibility(View.VISIBLE);
 
-                            SearchResults results = new SearchResults(rawJsonResponse);
-                            mTotalPages = results.getTotalPages();
+                            // Parse the Json String.
+                            FlickrSearchResults results = new FlickrSearchResults(rawJsonResponse);
+                            mTotalPages = results.getPageCount();
                             mCurrentPage = results.getCurrentPage();
                             pagesTextView.setText(mCurrentPage + " of " + mTotalPages + " pages");
 
                             // Update the adapter to display the results.
                             mPhotodapter.updateData(results.getResultsArray());
+
+                            // Set the position to the first element of the list.
                             resultsListView.setSelection(0);
+
                         } catch (JSONException e) {
                             navbarView.setVisibility(View.GONE);
                             //TODO check progressbar
@@ -287,30 +310,47 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
      */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Photo item = (Photo) mPhotodapter.getItem(position);
+        FlickrPhoto item = (FlickrPhoto) mPhotodapter.getItem(position);
 
         Intent displayIntent = new Intent(this, DisplayActivity.class);
 
-        // Pass the photo json object as extra.
-        displayIntent.putExtra(Utils.FLICKR_INFO_URL, item.getInfoUrl());
+        // Pass URL of the photo
+        displayIntent.putExtra(FlickrUtils.FLICKR_INFO_URL, item.getInfoUrl());
 
-        // Pass the full photo URL as extra
-        displayIntent.putExtra(Utils.FULL_IMG_URL, item.getFullImageUrl());
+        // Pass the full photo URL
+        displayIntent.putExtra(FlickrUtils.FULL_IMG_URL, item.getFullImageUrl());
 
         startActivity(displayIntent);
     }
 
+    /**
+     * Handling the tapping of Previous Page on navigation bar.
+     *
+     * @param v the View touched.
+     */
     public void onPreviousPage(View v) {
+
+        // Make sure we are in boundaries
         if (mCurrentPage > 1) {
             mCurrentPage--;
+            // Perform the search without a new query
             doSearch(null);
         }
 
     }
 
+    /**
+     * Handling the tapping of Next Page on navigation bar.
+     *
+     * @param v the View touched.
+     */
     public void onNextPage(View v) {
+
+        // Make sure we are in boundaries
         if (mCurrentPage < mTotalPages) {
             mCurrentPage++;
+
+            // Perform the search without a new query
             doSearch(null);
         }
     }

@@ -11,15 +11,10 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.slickr.flickr.Photo;
+import org.slickr.flickr.FlickrPhoto;
 
 import java.util.ArrayList;
 
-/**
- * Created by marlog on 9/10/14.
- */
 public class PhotoAdapter extends BaseAdapter {
 
     /**
@@ -35,7 +30,7 @@ public class PhotoAdapter extends BaseAdapter {
     /**
      * The JSON Array to be displayed.
      */
-    ArrayList<Photo> mResultsArray;
+    ArrayList<FlickrPhoto> mResultsArray;
 
     /**
      * JSONAdapter Constructor.
@@ -45,7 +40,7 @@ public class PhotoAdapter extends BaseAdapter {
     public PhotoAdapter(Context context, LayoutInflater inflater) {
         mContext = context;
         mInflater = inflater;
-        mResultsArray = new ArrayList<Photo>();
+        mResultsArray = new ArrayList<FlickrPhoto>();
 
     }
 
@@ -89,22 +84,26 @@ public class PhotoAdapter extends BaseAdapter {
 
         }
 
-        // Fill in the row with corresponding data.
-        Photo photo = (Photo) getItem(position);
+        // Get the corresponding Photo.
+        FlickrPhoto photo = (FlickrPhoto) getItem(position);
 
-        // Construct the thumbnail URL
-        final String thumbnailUrl = photo.getThumbnailUrl();
-        Log.d("slickr", "Getting thumbnail from " + thumbnailUrl);
+
+        Log.d("slickr", "Getting thumbnail from " + photo.getThumbnailUrl());
 
         // Asynchronously fetch thumbnail from flickr
-        Picasso.with(mContext).load(thumbnailUrl).placeholder(R.drawable.placeholder).into(viewHolder.thumbnailImageView);
+        Picasso.with(mContext).load(photo.getThumbnailUrl()).placeholder(R.drawable.placeholder).into(viewHolder.thumbnailImageView);
+
         viewHolder.titleTextView.setText(photo.getTitle());
 
         return convertView;
     }
 
-    public void updateData(ArrayList<Photo> resultsArray){
-        mResultsArray = resultsArray;
+    /**
+     * Set new data to display.
+     * @param resultsArrayList the ArrayList with the new data.
+     */
+    public void updateData(ArrayList<FlickrPhoto> resultsArrayList){
+        mResultsArray = resultsArrayList;
         notifyDataSetChanged();
 
     }

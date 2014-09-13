@@ -3,7 +3,7 @@ package org.slickr;
 import android.content.SearchRecentSuggestionsProvider;
 
 /**
- * Created by marlog on 9/12/14.
+ * Used for storing typed-in queries.
  */
 public class QueriesHistoryProvider extends SearchRecentSuggestionsProvider{
     public final static String AUTHORITY = QueriesHistoryProvider.class.getName();

@@ -3,14 +3,46 @@ package org.slickr.flickr;
 /**
  * Created by marlog on 9/13/14.
  */
-public class Photo {
+public class FlickrPhoto {
+
+    /**
+     * Photo id
+     */
     String id;
+
+    /**
+     * Photo title.
+     */
     String title;
+
+    /**
+     * The full info url returning a Json response
+     */
     String infoUrl;
+
+    /**
+     * The url that returns a jpg image.
+     */
     String fullImageUrl;
+
+    /**
+     * String describing the location of the photo.
+     */
     String geoLocation;
+
+    /**
+     * String containing all the tags.
+     */
     String tags;
+
+    /**
+     * Flick photopage.
+     */
     String shareUrl;
+
+    /**
+     * The url that returns the jpg thumbnail of the photo.
+     */
     String thumbnailUrl;
 
     public String getId() {

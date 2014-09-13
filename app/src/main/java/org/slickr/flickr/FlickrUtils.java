@@ -9,11 +9,12 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 
 /**
  * Created by marlog on 9/11/14.
  */
-public class Utils {
+public class FlickrUtils {
     /**
      * The API Key for the slickr app.
      */
@@ -35,6 +36,9 @@ public class Utils {
      */
     public static final String FLICKR_INFO_URL = FLICK_BASE_URL + "flickr.photos.getInfo&api_key=" + FLICKR_KEY + "&photo_id=";
 
+    /**
+     * The maximum number of results per page.
+     */
     public static final int RESULTS_PER_PAGE = 10;
 
     /**
@@ -51,7 +55,6 @@ public class Utils {
      * Key for the json string.
      */
     public static final String JSON_STRING = "jsonString";
-
 
 
     /**
@@ -78,16 +81,16 @@ public class Utils {
     /**
      * Static instance of the class.
      */
-    private static Utils ourInstance;
+    private static FlickrUtils ourInstance;
 
     /**
      * Provides access to the FlickrUtils methods.
      *
      * @return the static instance of the class.
      */
-    public static Utils getInstance() {
+    public static FlickrUtils getInstance() {
         if (ourInstance == null) {
-            ourInstance = new Utils();
+            ourInstance = new FlickrUtils();
         }
         return ourInstance;
     }
@@ -199,6 +202,14 @@ public class Utils {
         return returnString;
     }
 
+    /**
+     * Creates the url for the search REST call.
+     *
+     * @param query String with the text query
+     * @param location the current location of the device
+     * @param isGeoEnabled true if location-based search is enabled.
+     * @return
+     */
     public String reconstructFullQueryUrl(String query, final Location location, final boolean isGeoEnabled) {
         // Encode the query to UTF-8
         String urlTextQuery = "";
@@ -210,7 +221,7 @@ public class Utils {
 
         // Start building the complete URL
         StringBuilder urlBuilder = new StringBuilder();
-        urlBuilder.append(Utils.FLICK_SEARCH_URL);
+        urlBuilder.append(FlickrUtils.FLICK_SEARCH_URL);
         urlBuilder.append(urlTextQuery);
 
         // Include location if enabled.
@@ -225,9 +236,15 @@ public class Utils {
         return urlBuilder.toString();
     }
 
-    public Photo convertPhotoFromResult(final JSONObject jsonObject) {
+    /**
+     * Creates a new FlickPhoto object from a corresponding json response of the search method.
+     *
+     * @param jsonObject the response of the search method.
+     * @return the corresponding FlickPhoto.
+     */
+    public FlickrPhoto convertPhotoFromResult(final JSONObject jsonObject) {
 
-        Photo photo = new Photo();
+        FlickrPhoto photo = new FlickrPhoto();
         photo.setTitle(jsonObject.optString("title"));
         photo.setInfoUrl(constructInfoUrl(jsonObject));
         photo.setThumbnailUrl(constructImageUrl(jsonObject, SIZE_LARGE_SQUARE));
@@ -236,10 +253,17 @@ public class Utils {
         return photo;
     }
 
-    public Photo convertPhotoFromInfo(final String jsonString) throws JSONException {
+    /**
+     * Creates a new FlickPhoto object from a corresponding json response of the info method.
+     *
+     * @param jsonString the response of the info method.
+     * @return the corresponding FlickPhoto.
+     * @throws JSONException
+     */
+    public FlickrPhoto convertPhotoFromInfo(final String jsonString) throws JSONException {
 
         JSONObject jsonObject = new JSONObject(jsonString);
-        Photo photo = new Photo();
+        FlickrPhoto photo = new FlickrPhoto();
 
         photo.setTitle(jsonObject.optJSONObject("photo").optJSONObject("title").optString("_content"));
         photo.setTags(extractTags(jsonObject));
@@ -249,11 +273,64 @@ public class Utils {
         return photo;
     }
 
-    public String appendPageToQueryUrl(final String queryUrl,int pageNumber){
+    /**
+     * Appends a specific page number at the end of a query url.
+     * @param queryUrl the URL without the page number.
+     * @param pageNumber the specific page number
+     * @return a concatenated string.
+     */
+    public String appendPageToQueryUrl(final String queryUrl, int pageNumber) {
         final StringBuilder urlBuilder = new StringBuilder(queryUrl);
         urlBuilder.append("&page=");
         urlBuilder.append(pageNumber);
-        return  urlBuilder.toString();
+        return urlBuilder.toString();
     }
 
+    /**
+     * Extracts the page count from a json response string.
+     *
+     * @param jsonString the response of the search method
+     * @return int with the total page count.
+     * @throws JSONException
+     */
+    public int extractPageCount(String jsonString) throws JSONException {
+        JSONObject jsonObject = new JSONObject(jsonString);
+        return jsonObject.getJSONObject("photos").getInt("pages");
+    }
+
+    /**
+     * Extracts the current pagefrom a json response string.
+     *
+     * @param jsonString the response of the search method
+     * @return current page number.
+     * @throws JSONException
+     */
+    public int extractCurrentPage(String jsonString) throws JSONException {
+        JSONObject jsonObject = new JSONObject(jsonString);
+        return jsonObject.getJSONObject("photos").getInt("page");
+
+    }
+
+    /**
+     * Creates an ArrayList of photos
+     *
+     * @param jsonString the json response of the search method.
+     * @return the ArrayList of photos contained.
+     * @throws JSONException
+     */
+    public ArrayList<FlickrPhoto> extractPhotos(String jsonString) throws JSONException {
+        JSONObject jsonObject = new JSONObject(jsonString);
+        final JSONArray jsonArrayResults = jsonObject.getJSONObject("photos").getJSONArray("photo");
+
+        ArrayList<FlickrPhoto> photoList = new ArrayList<FlickrPhoto>();
+
+        for (int i = 0; i < jsonArrayResults.length(); i++) {
+            JSONObject jsonPhoto = (JSONObject) jsonArrayResults.get(i);
+            FlickrPhoto photo = FlickrUtils.getInstance().convertPhotoFromResult(jsonPhoto);
+            photoList.add(photo);
+        }
+
+
+        return photoList;
+    }
 }
