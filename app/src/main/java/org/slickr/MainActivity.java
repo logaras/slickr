@@ -252,9 +252,9 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                         try {
                             // The results are in.
                             progressBarView.setVisibility(View.INVISIBLE);
+                            navbarView.setVisibility(View.VISIBLE);
 
                             SearchResults results = new SearchResults(rawJsonResponse);
-
                             mTotalPages = results.getTotalPages();
                             mCurrentPage = results.getCurrentPage();
                             pagesTextView.setText(mCurrentPage + " of " + mTotalPages + " pages");
@@ -263,7 +263,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                             mPhotodapter.updateData(results.getResultsArray());
 
                         } catch (JSONException e) {
-
+                            navbarView.setVisibility(View.GONE);
                             //TODO check progressbar
                             e.printStackTrace();
                         }
