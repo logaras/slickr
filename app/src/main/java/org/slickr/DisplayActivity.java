@@ -4,11 +4,9 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.ShareActionProvider;
 import android.widget.TextView;
@@ -20,6 +18,7 @@ import com.squareup.picasso.Picasso;
 
 import org.apache.http.Header;
 import org.json.JSONException;
+import org.slickr.flickr.Utils;
 import org.slickr.flickr.Photo;
 
 
@@ -59,7 +58,7 @@ public class DisplayActivity extends Activity {
         ImageView imageView = (ImageView) findViewById(R.id.full_image);
 
         // Get the photo URL from extras.
-        String fullImageUrl = this.getIntent().getExtras().get(FlickrUtils.FULL_IMG_URL).toString();
+        String fullImageUrl = this.getIntent().getExtras().get(Utils.FULL_IMG_URL).toString();
 
         // Asynchronously start loading the photo.
         Picasso.with(this).load(fullImageUrl).placeholder(R.drawable.placeholder).into(imageView);
@@ -74,7 +73,7 @@ public class DisplayActivity extends Activity {
 
 
         // Retrieve info url from extras.
-        final String infoUrl = this.getIntent().getExtras().get(FlickrUtils.FLICKR_INFO_URL).toString();
+        final String infoUrl = this.getIntent().getExtras().get(Utils.FLICKR_INFO_URL).toString();
 
         // Asynchronously get the Info Json
         AsyncHttpClient client = new AsyncHttpClient();
@@ -87,7 +86,7 @@ public class DisplayActivity extends Activity {
 
                         Photo photo = null;
                         try {
-                            photo = FlickrUtils.getInstance().convertPhotoFromInfo(rawJsonResponse);
+                            photo = Utils.getInstance().convertPhotoFromInfo(rawJsonResponse);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

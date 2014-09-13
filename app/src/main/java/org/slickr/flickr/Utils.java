@@ -54,19 +54,6 @@ public class Utils {
 
 
 
-    /*
-s	small square 75x75
-q   square 150x150
-t	thumbnail, 100 on longest side
-m	small, 240 on longest side
-n	small, 320 on longest side
--	medium, 500 on longest side
-z	medium 640, 640 on longest side
-c	medium 800, 800 on longest side†
-b	large, 1024 on longest side*
-o	original image, either a jpg, gif or png, depending on source format
- */
-
     /**
      * Large Square Image size Identifier. square 150x150
      */
@@ -106,8 +93,7 @@ o	original image, either a jpg, gif or png, depending on source format
     }
 
     /**
-     * Constucts the URL of a photo.
-     * <p/>
+     * Constructs the URL of a photo.
      * Having the format: https://farm{farm-id}.staticflickr.com/{server-id}/{id}_{secret}_[mstzb].jpg
      *
      * @param jsonObject the JSON Object corresponding to the photo.
@@ -152,36 +138,11 @@ o	original image, either a jpg, gif or png, depending on source format
 
 
     /**
-     * Constructs the URL for the REST call returning info for a specific photo.
-     *
-     * @return the info UR.
-     */
-    public String constructInfoUrl(final String jsonString) {
-
-        final StringBuilder urlBuilder = new StringBuilder();
-
-        try {
-            JSONObject jsonObject = new JSONObject(jsonString);
-
-            urlBuilder.append(FLICKR_INFO_URL);
-            urlBuilder.append(jsonObject.opt("id"));
-            urlBuilder.append("&secret=");
-            urlBuilder.append(jsonObject.opt("secret"));
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return urlBuilder.toString();
-    }
-
-
-    /**
      * Extracts the Location of a photo.
      *
      * @param jsonObject the JSON Object corresponding to the photo.
      * @return string with county,region,country or Unknown Location
-     * @throws org.json.JSONException
+     * @throws JSONException
      */
     public String extractLocation(JSONObject jsonObject) throws JSONException {
         String returnString = "(Unknown Location)";
@@ -204,7 +165,7 @@ o	original image, either a jpg, gif or png, depending on source format
      *
      * @param jsonObject the JSON Object corresponding to the photo.
      * @return URL as String
-     * @throws org.json.JSONException
+     * @throws JSONException
      */
     public String extractShareUrl(JSONObject jsonObject) throws JSONException {
         final JSONObject urlJsonObject = (JSONObject) jsonObject.optJSONObject("photo").optJSONObject("urls").optJSONArray("url").get(0);
@@ -219,7 +180,7 @@ o	original image, either a jpg, gif or png, depending on source format
      *
      * @param jsonObject the JSON Object corresponding to the photo.'
      * @return all tags as String or (none)
-     * @throws org.json.JSONException
+     * @throws JSONException
      */
     public String extractTags(JSONObject jsonObject) throws JSONException {
 
@@ -238,7 +199,7 @@ o	original image, either a jpg, gif or png, depending on source format
         return returnString;
     }
 
-    public String reconstructFullQUeryUrl(String query, final Location location, final boolean isGeoEnabled) {
+    public String reconstructFullQueryUrl(String query, final Location location, final boolean isGeoEnabled) {
         // Encode the query to UTF-8
         String urlTextQuery = "";
         try {
@@ -264,7 +225,7 @@ o	original image, either a jpg, gif or png, depending on source format
         return urlBuilder.toString();
     }
 
-    public Photo convertPhotoFromResult(final JSONObject jsonObject){
+    public Photo convertPhotoFromResult(final JSONObject jsonObject) {
 
         Photo photo = new Photo();
         photo.setTitle(jsonObject.optString("title"));
@@ -284,8 +245,15 @@ o	original image, either a jpg, gif or png, depending on source format
         photo.setTags(extractTags(jsonObject));
         photo.setGeoLocation(extractLocation(jsonObject));
         photo.setFullImageUrl(constructImageUrl(jsonObject, SIZE_LARGE));
-        photo.setShareUrl(jsonObject.optJSONObject("photo").optJSONObject("urls").optJSONArray("url").optJSONObject(0).optString("_content"));
+        photo.setShareUrl(extractShareUrl(jsonObject));
         return photo;
+    }
+
+    public String appendPageToQueryUrl(final String queryUrl,int pageNumber){
+        final StringBuilder urlBuilder = new StringBuilder(queryUrl);
+        urlBuilder.append("&page=");
+        urlBuilder.append(pageNumber);
+        return  urlBuilder.toString();
     }
 
 }

@@ -3,7 +3,6 @@ package org.slickr.flickr;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.slickr.FlickrUtils;
 
 import java.util.ArrayList;
 
@@ -39,7 +38,7 @@ public class SearchResults {
 
         for (int i = 0; i < jsonArrayResults.length(); i++) {
             JSONObject jsonPhoto = (JSONObject) jsonArrayResults.get(i);
-            Photo photo = FlickrUtils.getInstance().convertPhotoFromResult(jsonPhoto);
+            Photo photo = Utils.getInstance().convertPhotoFromResult(jsonPhoto);
             photoList.add(photo);
         }
 

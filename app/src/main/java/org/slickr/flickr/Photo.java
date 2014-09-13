@@ -1,9 +1,5 @@
 package org.slickr.flickr;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.slickr.FlickrUtils;
-
 /**
  * Created by marlog on 9/13/14.
  */

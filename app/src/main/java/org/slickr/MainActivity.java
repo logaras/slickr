@@ -26,7 +26,7 @@ import com.loopj.android.http.BaseJsonHttpResponseHandler;
 
 import org.apache.http.Header;
 import org.json.JSONException;
-import org.json.JSONObject;
+import org.slickr.flickr.Utils;
 import org.slickr.flickr.Photo;
 import org.slickr.flickr.SearchResults;
 
@@ -228,15 +228,13 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
      * @param query
      */
     private void doSearch(String query) {
-        Log.d(getString(R.string.app_name), "Searching for " + query);
 
 
-        // TODO add currentPage to method signature
         if (query != null) {
-            mLastFullQueryURL = FlickrUtils.getInstance().reconstructFullQUeryUrl(query, mLocation, mIsGeoEnabled);
+            mLastFullQueryURL = Utils.getInstance().reconstructFullQueryUrl(query, mLocation, mIsGeoEnabled);
         }
 
-        mLastFullQueryURL += "&page=" + mCurrentPage;
+        mLastFullQueryURL = Utils.getInstance().appendPageToQueryUrl(mLastFullQueryURL,mCurrentPage);
 
         // Use the AsyncHttpClient to contact the Flickr api.
         AsyncHttpClient client = new AsyncHttpClient();
@@ -294,10 +292,10 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         Intent displayIntent = new Intent(this, DisplayActivity.class);
 
         // Pass the photo json object as extra.
-        displayIntent.putExtra(FlickrUtils.FLICKR_INFO_URL, item.getInfoUrl());
+        displayIntent.putExtra(Utils.FLICKR_INFO_URL, item.getInfoUrl());
 
         // Pass the full photo URL as extra
-        displayIntent.putExtra(FlickrUtils.FULL_IMG_URL, item.getFullImageUrl());
+        displayIntent.putExtra(Utils.FULL_IMG_URL, item.getFullImageUrl());
 
         startActivity(displayIntent);
     }
