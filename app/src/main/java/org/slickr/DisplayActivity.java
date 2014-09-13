@@ -19,9 +19,9 @@ import com.loopj.android.http.BaseJsonHttpResponseHandler;
 import com.squareup.picasso.Picasso;
 
 import org.apache.http.Header;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
+import org.slickr.flickr.Photo;
+
 
 /**
  * Created by marlog on 9/11/14.
@@ -55,6 +55,7 @@ public class DisplayActivity extends Activity {
         actionBar.setDisplayShowTitleEnabled(false);
         setContentView(R.layout.activity_display);
 
+
         ImageView imageView = (ImageView) findViewById(R.id.full_image);
 
         // Get the photo URL from extras.
@@ -63,72 +64,54 @@ public class DisplayActivity extends Activity {
         // Asynchronously start loading the photo.
         Picasso.with(this).load(fullImageUrl).placeholder(R.drawable.placeholder).into(imageView);
 
+
+
         titleTextView = (TextView) findViewById(R.id.image_title);
         tagsTextView = (TextView) findViewById(R.id.image_tags);
         locationTextView = (TextView) findViewById(R.id.image_geolocation);
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
-        // Retrieve full json from extras.
-        final String jsonString = this.getIntent().getExtras().get(FlickrUtils.JSON_STRING).toString();
 
-        try {
-            // Create a JSON object from the string.
-            final JSONObject jsonObject = new JSONObject(jsonString);
+        // Retrieve info url from extras.
+        final String infoUrl = this.getIntent().getExtras().get(FlickrUtils.FLICKR_INFO_URL).toString();
 
-            // Get the photo title.
-            final String imageTitle = jsonObject.optString("title");
-            titleTextView.setText(imageTitle);
+        // Asynchronously get the Info Json
+        AsyncHttpClient client = new AsyncHttpClient();
 
-            // Create the URL for getting the info of this photo.
-            final String infoUrl = FlickrUtils.getInstance().constructInfoUrl(jsonObject);
+        client.get(infoUrl,
+                new BaseJsonHttpResponseHandler() {
 
-            // Asynchronously get the Info Json
-            AsyncHttpClient client = new AsyncHttpClient();
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, String rawJsonResponse, Object response) {
 
-            client.get(infoUrl,
-                    new BaseJsonHttpResponseHandler() {
-
-                        @Override
-                        public void onSuccess(int statusCode, Header[] headers, String rawJsonResponse, Object response) {
-                            //Log.d(getString(R.string.app_name), rawJsonResponse);
-                            try {
-                                // Create a json object for the photo info
-                                JSONObject jsonObject = new JSONObject(rawJsonResponse);
-
-                                // Set the share url on the Share Intent
-                                setShareIntent(FlickrUtils.getInstance().extractShareUrl(jsonObject));
-
-                                // Display the Location of the photo
-                                locationTextView.setText(FlickrUtils.getInstance().extractLocation(jsonObject));
-
-                                // Display the tags of the photo
-                                tagsTextView.setText(FlickrUtils.getInstance().extractTags(jsonObject));
-
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
+                        Photo photo = null;
+                        try {
+                            photo = FlickrUtils.getInstance().convertPhotoFromInfo(rawJsonResponse);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
 
-                        @Override
-                        public void onFailure(int statusCode, Header[] headers, Throwable throwable, String rawJsonData, Object errorResponse) {
-                            Toast.makeText(getApplicationContext(), "An error occured while connecting the server.", Toast.LENGTH_LONG).show();
-                            Log.e(getString(R.string.app_name), statusCode + "\n" + errorResponse);
-                        }
+                        titleTextView.setText(photo.getTitle());
+                        tagsTextView.setText(photo.getTags());
+                        locationTextView.setText(photo.getGeoLocation());
+                        setShareIntent(photo.getShareUrl());
+                        // Set the share url on the Share Intent
 
-                        @Override
-                        protected Object parseResponse(String rawJsonData, boolean isFailure) throws Throwable {
-                            return null;
-                        }
+                    }
 
-                    });
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, String rawJsonData, Object errorResponse) {
+                        Toast.makeText(getApplicationContext(), "An error occured while connecting the server.", Toast.LENGTH_LONG).show();
+                        Log.e(getString(R.string.app_name), statusCode + "\n" + errorResponse);
+                    }
 
+                    @Override
+                    protected Object parseResponse(String rawJsonData, boolean isFailure) throws Throwable {
+                        return null;
+                    }
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
+                });
 
     }
 
@@ -157,31 +140,6 @@ public class DisplayActivity extends Activity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    /**
-     * Prepares the Share Intent for the specific photo.
-     *
-     * @param title    The photo title as String
-     * @param shareUrl The full URL as String
-     */
-    private void setShareIntentHtml(final String title, final String shareUrl) {
-
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setType("text/html");
-        shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Take a look!");
-        final StringBuilder shareTextBuilder = new StringBuilder();
-        shareTextBuilder.append("<p>");
-        shareTextBuilder.append("This is a nice picture I found:");
-        shareTextBuilder.append("</p><p>");
-        shareTextBuilder.append("<a href=\">");
-        shareTextBuilder.append(shareUrl);
-        shareTextBuilder.append("\">");
-        shareTextBuilder.append(title);
-        shareTextBuilder.append("</a></p>");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, Html.fromHtml(shareTextBuilder.toString()));
-
-        mShareActionProvider.setShareIntent(shareIntent);
     }
 
     /**

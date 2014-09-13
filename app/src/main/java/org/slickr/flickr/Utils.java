@@ -1,4 +1,4 @@
-package org.slickr;
+package org.slickr.flickr;
 
 import android.location.Location;
 import android.util.Log;
@@ -6,7 +6,6 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.slickr.flickr.Photo;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -14,7 +13,7 @@ import java.net.URLEncoder;
 /**
  * Created by marlog on 9/11/14.
  */
-public class FlickrUtils {
+public class Utils {
     /**
      * The API Key for the slickr app.
      */
@@ -92,16 +91,16 @@ o	original image, either a jpg, gif or png, depending on source format
     /**
      * Static instance of the class.
      */
-    private static FlickrUtils ourInstance;
+    private static Utils ourInstance;
 
     /**
      * Provides access to the FlickrUtils methods.
      *
      * @return the static instance of the class.
      */
-    public static FlickrUtils getInstance() {
+    public static Utils getInstance() {
         if (ourInstance == null) {
-            ourInstance = new FlickrUtils();
+            ourInstance = new Utils();
         }
         return ourInstance;
     }
@@ -182,7 +181,7 @@ o	original image, either a jpg, gif or png, depending on source format
      *
      * @param jsonObject the JSON Object corresponding to the photo.
      * @return string with county,region,country or Unknown Location
-     * @throws JSONException
+     * @throws org.json.JSONException
      */
     public String extractLocation(JSONObject jsonObject) throws JSONException {
         String returnString = "(Unknown Location)";
@@ -205,7 +204,7 @@ o	original image, either a jpg, gif or png, depending on source format
      *
      * @param jsonObject the JSON Object corresponding to the photo.
      * @return URL as String
-     * @throws JSONException
+     * @throws org.json.JSONException
      */
     public String extractShareUrl(JSONObject jsonObject) throws JSONException {
         final JSONObject urlJsonObject = (JSONObject) jsonObject.optJSONObject("photo").optJSONObject("urls").optJSONArray("url").get(0);
@@ -220,7 +219,7 @@ o	original image, either a jpg, gif or png, depending on source format
      *
      * @param jsonObject the JSON Object corresponding to the photo.'
      * @return all tags as String or (none)
-     * @throws JSONException
+     * @throws org.json.JSONException
      */
     public String extractTags(JSONObject jsonObject) throws JSONException {
 
@@ -250,7 +249,7 @@ o	original image, either a jpg, gif or png, depending on source format
 
         // Start building the complete URL
         StringBuilder urlBuilder = new StringBuilder();
-        urlBuilder.append(FlickrUtils.FLICK_SEARCH_URL);
+        urlBuilder.append(Utils.FLICK_SEARCH_URL);
         urlBuilder.append(urlTextQuery);
 
         // Include location if enabled.

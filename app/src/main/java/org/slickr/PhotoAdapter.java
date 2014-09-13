@@ -13,11 +13,14 @@ import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slickr.flickr.Photo;
+
+import java.util.ArrayList;
 
 /**
  * Created by marlog on 9/10/14.
  */
-public class JSONAdapter extends BaseAdapter {
+public class PhotoAdapter extends BaseAdapter {
 
     /**
      * The application context.
@@ -32,28 +35,28 @@ public class JSONAdapter extends BaseAdapter {
     /**
      * The JSON Array to be displayed.
      */
-    JSONArray mJsonArray;
+    ArrayList<Photo> mResultsArray;
 
     /**
      * JSONAdapter Constructor.
      * @param context the application context.
      * @param inflater the layout inflater
      */
-    public JSONAdapter(Context context, LayoutInflater inflater) {
+    public PhotoAdapter(Context context, LayoutInflater inflater) {
         mContext = context;
         mInflater = inflater;
-        mJsonArray = new JSONArray();
+        mResultsArray = new ArrayList<Photo>();
 
     }
 
     @Override
     public int getCount() {
-        return mJsonArray.length();
+        return mResultsArray.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return mJsonArray.optJSONObject(position);
+        return mResultsArray.get(position);
     }
 
     @Override
@@ -71,7 +74,6 @@ public class JSONAdapter extends BaseAdapter {
         if (convertView == null) {
             convertView = mInflater.inflate(R.layout.row_result, null);
 
-
             // Create the ViewHolder for future use.
             viewHolder = new ViewHolder();
             viewHolder.thumbnailImageView = (ImageView) convertView.findViewById(R.id.thumbnail_title);
@@ -88,26 +90,21 @@ public class JSONAdapter extends BaseAdapter {
         }
 
         // Fill in the row with corresponding data.
-        JSONObject jsonObject = (JSONObject) getItem(position);
+        Photo photo = (Photo) getItem(position);
 
         // Construct the thumbnail URL
-        final String thumbnailUrl = FlickrUtils.getInstance().constructSourceUrl(jsonObject, FlickrUtils.SIZE_LARGE_SQUARE);
+        final String thumbnailUrl = photo.getThumbnailUrl();
         Log.d("slickr", "Getting thumbnail from " + thumbnailUrl);
 
         // Asynchronously fetch thumbnail from flickr
         Picasso.with(mContext).load(thumbnailUrl).placeholder(R.drawable.placeholder).into(viewHolder.thumbnailImageView);
-        viewHolder.titleTextView.setText(jsonObject.optString("title"));
+        viewHolder.titleTextView.setText(photo.getTitle());
 
         return convertView;
     }
 
-    /**
-     * Updates the displayed data.
-     *
-     * @param jsonArray JSONArray with the new data.
-     */
-    public void updateData(JSONArray jsonArray) {
-        mJsonArray = jsonArray;
+    public void updateData(ArrayList<Photo> resultsArray){
+        mResultsArray = resultsArray;
         notifyDataSetChanged();
     }
 

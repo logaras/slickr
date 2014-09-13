@@ -27,9 +27,8 @@ import com.loopj.android.http.BaseJsonHttpResponseHandler;
 import org.apache.http.Header;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import org.slickr.flickr.Photo;
+import org.slickr.flickr.SearchResults;
 
 
 public class MainActivity extends Activity implements AdapterView.OnItemClickListener, LocationListener {
@@ -42,7 +41,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     /**
      * The adapter for displaying search results.
      */
-    JSONAdapter mJSONAdapter;
+    PhotoAdapter mPhotodapter;
 
     /**
      * ListView containing the search results.
@@ -52,7 +51,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     /**
      * Indicating if the location services for the app are enabled.
      */
-    boolean isGeoEnabled = false;
+    boolean mIsGeoEnabled = false;
 
     /**
      * Last known location.
@@ -105,9 +104,9 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         progressBarView.setVisibility(View.INVISIBLE);
 
         resultsListView = (ListView) findViewById(R.id.list);
-        mJSONAdapter = new JSONAdapter(this, getLayoutInflater());
+        mPhotodapter = new PhotoAdapter(this, getLayoutInflater());
 
-        resultsListView.setAdapter(mJSONAdapter);
+        resultsListView.setAdapter(mPhotodapter);
         resultsListView = (ListView) findViewById(R.id.list);
         resultsListView.setOnItemClickListener(this);
 
@@ -166,10 +165,10 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         Log.d(getString(R.string.app_name), "Should toggle locations");
 
         // Revert previous state
-        isGeoEnabled = !isGeoEnabled;
+        mIsGeoEnabled = !mIsGeoEnabled;
 
         // Is now enabled
-        if (isGeoEnabled) {
+        if (mIsGeoEnabled) {
 
             // Use best enabled location provider
             if (mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -216,7 +215,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
             mCurrentPage = 1;
             SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this, QueriesHistoryProvider.AUTHORITY, QueriesHistoryProvider.MODE);
             suggestions.saveRecentQuery(query, null);
-            searchView.setQuery(query,false);
+            searchView.setQuery(query, false);
             searchView.clearFocus();
             doSearch(query);
 
@@ -231,10 +230,13 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     private void doSearch(String query) {
         Log.d(getString(R.string.app_name), "Searching for " + query);
 
+
+        // TODO add currentPage to method signature
         if (query != null) {
-            mLastFullQueryURL = reconstructFullQUeryUrl(query);
+            mLastFullQueryURL = FlickrUtils.getInstance().reconstructFullQUeryUrl(query, mLocation, mIsGeoEnabled);
         }
 
+        //
         mLastFullQueryURL += "&page=" + mCurrentPage;
 
         // Use the AsyncHttpClient to contact the Flickr api.
@@ -242,27 +244,27 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
         progressBarView.setVisibility(View.VISIBLE);
 
-        client.get(mLastFullQueryURL.toString(),
+        client.get(mLastFullQueryURL,
                 new BaseJsonHttpResponseHandler() {
 
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, String rawJsonResponse, Object response) {
-                        // The results are in.
-                        progressBarView.setVisibility(View.INVISIBLE);
-
-                        // Try parsing the response.
                         try {
-                            JSONObject jsonObject = new JSONObject(rawJsonResponse);
-                            mTotalPages = jsonObject.getJSONObject("photos").getInt("pages");
-                            mCurrentPage = jsonObject.getJSONObject("photos").getInt("page");
+                            // The results are in.
+                            progressBarView.setVisibility(View.INVISIBLE);
 
+                            SearchResults results = new SearchResults(rawJsonResponse);
+
+                            mTotalPages = results.getTotalPages();
+                            mCurrentPage = results.getCurrentPage();
                             pagesTextView.setText(mCurrentPage + " of " + mTotalPages + " pages");
 
-                            navbarView.setVisibility(View.VISIBLE);
                             // Update the adapter to display the results.
-                            mJSONAdapter.updateData(jsonObject.getJSONObject("photos").getJSONArray("photo"));
+                            mPhotodapter.updateData(results.getResultsArray());
+
                         } catch (JSONException e) {
-                            navbarView.setVisibility(View.GONE);
+
+                            //TODO check progressbar
                             e.printStackTrace();
                         }
                     }
@@ -282,48 +284,21 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                 });
     }
 
-    private String reconstructFullQUeryUrl(String query) {
-        // Encode the query to UTF-8
-        String urlTextQuery = "";
-        try {
-            urlTextQuery = URLEncoder.encode(query, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-        // Start building the complete URL
-        StringBuilder urlBuilder = new StringBuilder();
-        urlBuilder.append(FlickrUtils.FLICK_SEARCH_URL);
-        urlBuilder.append(urlTextQuery);
-
-        // Include location if enabled.
-        if (isGeoEnabled) {
-
-            urlBuilder.append("&lat=");
-            urlBuilder.append(mLocation.getLatitude());
-            urlBuilder.append("&lon=");
-            urlBuilder.append(mLocation.getLongitude());
-        }
-        Log.d(getString(R.string.app_name), urlBuilder.toString());
-        return urlBuilder.toString();
-
-    }
-
 
     /**
      * Show the Activity for displaying the photo.
      */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        JSONObject item = (JSONObject) mJSONAdapter.getItem(position);
+        Photo item = (Photo) mPhotodapter.getItem(position);
 
         Intent displayIntent = new Intent(this, DisplayActivity.class);
 
         // Pass the photo json object as extra.
-        displayIntent.putExtra(FlickrUtils.JSON_STRING, item.toString());
+        displayIntent.putExtra(FlickrUtils.FLICKR_INFO_URL, item.getInfoUrl());
 
         // Pass the full photo URL as extra
-        displayIntent.putExtra(FlickrUtils.FULL_IMG_URL, FlickrUtils.getInstance().constructSourceUrl(item, FlickrUtils.SIZE_LARGE));
+        displayIntent.putExtra(FlickrUtils.FULL_IMG_URL, item.getFullImageUrl());
 
         startActivity(displayIntent);
     }
