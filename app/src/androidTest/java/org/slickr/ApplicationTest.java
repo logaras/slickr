@@ -14,14 +14,12 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         super(Application.class);
 
         try {
-            JSONObject allResults = new JSONObject(JSONData.VALID_RESULTS);
             JSONObject photoObject = new JSONObject(JSONData.VALID_RESULT_PHOTO);
             JSONObject photoInfo = new JSONObject(JSONData.VALID_INFO);
 
 
             // construct thumbnail image url
             testConstructThumbnailUrl(photoObject);
-
 
             // construct medium image url
             testConstructMediumImageUrl(photoObject);
@@ -30,7 +28,6 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
             testExtractLocation(photoInfo);
 
             // constructImageUrl
-
 
             // extractShareUrl
             testExtractShareUrl(photoInfo);

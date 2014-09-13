@@ -152,11 +152,18 @@ public class FlickrUtils {
         final JSONObject locationJsonObject = jsonObject.optJSONObject("photo").optJSONObject("location");
         if (locationJsonObject != null) {
             final StringBuilder locationBuilder = new StringBuilder();
-            locationBuilder.append(((JSONObject) locationJsonObject.opt("county")).opt("_content").toString());
-            locationBuilder.append(", ");
-            locationBuilder.append(((JSONObject) locationJsonObject.opt("region")).opt("_content").toString());
-            locationBuilder.append(", ");
-            locationBuilder.append(((JSONObject) locationJsonObject.opt("country")).opt("_content").toString());
+            if (locationJsonObject.has("county")) {
+                locationBuilder.append((locationJsonObject.optJSONObject("county")).optString("_content", "Unknown county").toString());
+                locationBuilder.append(", ");
+            }
+
+            if (locationJsonObject.has("region")) {
+                locationBuilder.append((locationJsonObject.optJSONObject("region")).optString("_content", "Unknown region").toString());
+                locationBuilder.append(", ");
+            }
+            if (locationJsonObject.has("country")) {
+                locationBuilder.append((locationJsonObject.optJSONObject("country")).optString("_content", "Unknown country").toString());
+            }
             Log.d("slickr", "Location is " + locationBuilder.toString());
             returnString = locationBuilder.toString();
         }
@@ -205,8 +212,8 @@ public class FlickrUtils {
     /**
      * Creates the url for the search REST call.
      *
-     * @param query String with the text query
-     * @param location the current location of the device
+     * @param query        String with the text query
+     * @param location     the current location of the device
      * @param isGeoEnabled true if location-based search is enabled.
      * @return
      */
@@ -275,7 +282,8 @@ public class FlickrUtils {
 
     /**
      * Appends a specific page number at the end of a query url.
-     * @param queryUrl the URL without the page number.
+     *
+     * @param queryUrl   the URL without the page number.
      * @param pageNumber the specific page number
      * @return a concatenated string.
      */
