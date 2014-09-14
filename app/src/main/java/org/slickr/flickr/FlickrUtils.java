@@ -231,8 +231,8 @@ public class FlickrUtils {
         urlBuilder.append(FlickrUtils.FLICK_SEARCH_URL);
         urlBuilder.append(urlTextQuery);
 
-        // Include location if enabled.
-        if (isGeoEnabled) {
+        // Include location if enabled and use it only if it's not null.
+        if (isGeoEnabled && location !=null) {
 
             urlBuilder.append("&lat=");
             urlBuilder.append(location.getLatitude());
